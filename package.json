@@ -1,0 +1,55 @@
+{
+  "name": "airanks-mcp-server",
+  "version": "1.0.0",
+  "description": "AIR (airanks) MCP server — AI optimization rankings, AI-file (llms.txt/ai.txt) presence, and site search for any domain, over Model Context Protocol. Same auth and API as the air CLI. https://airanks.net",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "airanks-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "airanks",
+    "air",
+    "AI optimization",
+    "AIO",
+    "GEO",
+    "generative engine optimization",
+    "llms.txt",
+    "ai.txt",
+    "ai visibility",
+    "ai rank",
+    "claude",
+    "chatgpt"
+  ],
+  "license": "MIT",
+  "homepage": "https://airanks.net",
+  "repository": {
+    "type": "git",
+    "url": "https://git.shoemoney.ai/shoemoney/airanks-oss.git",
+    "directory": "mcp-server"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
