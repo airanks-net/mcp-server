@@ -1,6 +1,7 @@
 {
   "name": "airanks-mcp-server",
   "version": "1.0.0",
+  "mcpName": "io.github.airanks-net/mcp-server",
   "description": "AIR (airanks) MCP server — AI optimization rankings, AI-file (llms.txt/ai.txt) presence, and site search for any domain, over Model Context Protocol. Same auth and API as the air CLI. https://airanks.net",
   "type": "module",
   "main": "dist/index.js",

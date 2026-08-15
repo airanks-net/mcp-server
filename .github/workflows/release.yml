@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  npm-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # NOTE: npm trusted publishing (OIDC) must be configured once on npmjs.com
+      # for this package: org/user = airanks-net, repo = mcp-server,
+      # workflow filename = release.yml. Until that's set up, the FIRST publish
+      # needs a classic NPM_TOKEN (repo secret) — OIDC only works for
+      # subsequent publishes once the trusted publisher is linked.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test --if-present
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  mcp-registry-publish:
+    needs: npm-publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # OPTIONAL / UNVERIFIED: mcp-publisher's exact GitHub Actions OIDC auth
+      # flow (flags, token exchange) is not yet confirmed against the current
+      # release of github.com/modelcontextprotocol/registry — verify against
+      # its docs before relying on this in prod. package.json must carry a
+      # matching "mcpName" (io.github.airanks-net/mcp-server) for this to work.
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
+            | tar xz mcp-publisher
+          chmod +x mcp-publisher
+
+      - name: Publish to MCP registry
+        run: ./mcp-publisher publish
+        # mcp-publisher should pick up GitHub OIDC (ACTIONS_ID_TOKEN_REQUEST_URL/TOKEN,
+        # provided automatically via `permissions.id-token: write`) to authenticate
+        # as the io.github.airanks-net/* namespace owner — confirm flag name
+        # (e.g. `--auth github-oidc` or similar) once registry docs are checked.
