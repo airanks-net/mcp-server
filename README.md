@@ -146,17 +146,20 @@ flowchart TD
     Env -- no --> File{"~/.config/air/auth.json\nexists with a token?"}
     File -- yes --> Host{"request host ==\nsaved host?"}
     Host -- yes --> UseFile["✅ attach Bearer token"]
-    Host -- no --> Anon["🕵️ anonymous — token withheld\n(stops a leak if AIR_API_BASE moves)"]
-    File -- no --> Anon2["🕵️ anonymous — rate-limited harder"]
+    Host -- no --> Anon["🕵️ token withheld (host mismatch)\n(stops a leak if AIR_API_BASE moves)\n→ request still goes out, 401s server-side"]
+    File -- no --> Anon2["🚫 anonymous — 401 authentication_required\n(no token available at all)"]
 ```
 
 1. **`AIR_API_KEY`** env var — explicit intent, always wins.
 2. **`~/.config/air/auth.json`** — written by `air login` in any AIR client. **Host-scoped**: a
    file token only attaches to requests whose host matches the host it was minted for.
-3. **Anonymous** — still works, just rate-limited harder.
+3. **Anonymous** — rejected. The API now requires a token for every caller except the official
+   browser toolbar; an anonymous request gets a `401` with `error.code: "authentication_required"`.
+
+**A token is required** — free account + token at **[airanks.net/tokens](https://airanks.net/tokens)**.
 
 ```bash
-# fastest path: paste a key
+# required: paste a key
 export AIR_API_KEY=air_xxxxxxxxxxxxxxxx
 
 # or log in once with any AIR client and every other one picks it up
@@ -173,6 +176,10 @@ npm install -g airanks-mcp-server
 
 ...or skip the install entirely — every config block below runs it straight from `npx`.
 
+**A token is required** for every config below — free account + token at
+[airanks.net/tokens](https://airanks.net/tokens), then set it as `AIR_API_KEY` or run
+`npx air-cli login` once (see [Shared authentication](#-shared-authentication)).
+
 <details>
 <summary><strong>🖥️ Claude Desktop</strong></summary>
 
@@ -185,7 +192,7 @@ Edit `claude_desktop_config.json` (Settings → Developer → Edit Config):
       "command": "npx",
       "args": ["-y", "airanks-mcp-server"],
       "env": {
-        "AIR_API_KEY": "your-air-api-key-optional"
+        "AIR_API_KEY": "your-air-api-key"
       }
     }
   }
@@ -243,7 +250,7 @@ Add to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
     "airanks": {
       "command": "npx",
       "args": ["-y", "airanks-mcp-server"],
-      "env": { "AIR_API_KEY": "" }
+      "env": { "AIR_API_KEY": "your-air-api-key" }
     }
   }
 }
